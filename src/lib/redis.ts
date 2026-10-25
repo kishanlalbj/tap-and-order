@@ -1,0 +1,12 @@
+import { Redis } from "ioredis";
+
+const globalForRedis = globalThis as unknown as { redis?: Redis };
+
+export const redis =
+  globalForRedis.redis ?? new Redis(process.env.REDIS_URL!, { maxRetriesPerRequest: null });
+if (process.env.NODE_ENV !== "production") globalForRedis.redis = redis;
+
+/** A fresh connection, needed for SUBSCRIBE (a subscribed connection can't run other commands). */
+export function createSubscriber() {
+  return new Redis(process.env.REDIS_URL!, { maxRetriesPerRequest: null });
+}
